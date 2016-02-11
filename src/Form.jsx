@@ -6,32 +6,44 @@ import { connect }            from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 class Form extends React.Component {
-	componentWillMount() {
-		this.props.addForm(this.props.name);
-		this._onSubmit = this.props.onSubmit;
+	static childContextTypes = {
+		blurField: React.PropTypes.func,
+		formData: React.PropTypes.object,
+		formErrors: React.PropTypes.object,
+		updateField: React.PropTypes.func
+	};
+
+	getChildContext() {
+		return {
+			blurField: this.blurField.bind(this),
+			formData: this.props.formData,
+			formErrors: this.props.formErrors,
+			updateField: this.updateField.bind(this)
+		};
 	}
 
-	onBlur(e) {
-		if (!e.target.name) return;
-
-		const validators = this.props.schema[e.target.name];
+	blurField(field) {
+		const validators = this.props.schema[field];
 		if (this.submitted && validators) {
-			this.props.validateField(this.props.name, e.target.name, validators, e.target.value)
+			this.props.validateField(this.props.name, field, validators, this.props.formData[field])
 				.catch(err => {});
 		}
 	}
 
-	onChange(e) {
-		if (!e.target.name) return;
+	updateField(field, value) {
+		this.props.updateField(this.props.name, field, value);
+	}
 
-		this.props.updateField(this.props.name, e.target.name, e.target.value);
+	componentWillMount() {
+		this.props.addForm(this.props.name, this.props.formData);
+		this._onSubmit = this.props.onSubmit;
 	}
 
 	onSubmit(e) {
 		e.preventDefault();
 		this.submitted = true;
 
-		this.props.validateForm(this.props.name, this.props.schema, this.props.data)
+		this.props.validateForm(this.props.name, this.props.schema, this.props.formData)
 			.then(values => {
 				if (this._onSubmit) this._onSubmit();
 			})
@@ -39,10 +51,10 @@ class Form extends React.Component {
 	}
 
 	render() {
-		const { children, data, schema, ...props } = this.props;
+		const { children, formData, schema, ...props } = this.props;
 
 		return (
-			<form {...props} onBlur={this.onBlur.bind(this)} onChange={this.onChange.bind(this)} onSubmit={this.onSubmit.bind(this)} noValidate>
+			<form {...props} onSubmit={this.onSubmit.bind(this)} noValidate>
 				{children}
 			</form>
 		);
@@ -51,7 +63,8 @@ class Form extends React.Component {
 
 export default connect(
 	(state, props) => ({
-		data: state.formData[props.name] || {}
+		formData: state.formData[props.name] || props.formData || {},
+		formErrors: state.formErrors[props.name] || {}
 	}),
 	dispatch => bindActionCreators(actions, dispatch)
 )(Form);

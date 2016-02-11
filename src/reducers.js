@@ -16,7 +16,7 @@ export function formData(state = formDataInitialState, action) {
 	switch (action.type) {
 		case c.ADD_FORM:
 			return { ...state,
-				[action.name]: {}
+				[action.name]: action.formData
 			};
 
 		case c.UPDATE_FIELD_VALUE:

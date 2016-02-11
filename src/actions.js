@@ -3,8 +3,8 @@
 import * as c  from './constants';
 import { get } from 'dot-prop';
 
-export function addForm(name) {
-	return { type: c.ADD_FORM, name };
+export function addForm(name, formData) {
+	return { type: c.ADD_FORM, name, formData };
 }
 
 export function updateField(formName, fieldName, value) {
@@ -20,6 +20,10 @@ export function validateFieldFailure(formName, fieldName, error) {
 }
 
 export function validateField(formName, fieldName, validators, value) {
+	value = value || '';
+
+	if (!validators || !validators.length) return Promise.resolve(value);
+
 	let [ fv, ...v ] = validators;
 
 	return dispatch => v.reduce((a, b) => a.then(b), fv(value))
