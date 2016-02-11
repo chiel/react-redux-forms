@@ -1,6 +1,6 @@
 {
   "name": "react-redux-forms",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Easily maintain your form state in redux with minimal setup",
   "author": "chielkunkels",
   "license": "MIT",
