@@ -64,7 +64,8 @@ class Form extends React.Component {
 export default connect(
 	(state, props) => ({
 		formData: state.formData[props.name] || props.formData || {},
-		formErrors: state.formErrors[props.name] || {}
+		formErrors: state.formErrors[props.name] || {},
+		schema: props.schema || {}
 	}),
 	dispatch => bindActionCreators(actions, dispatch)
 )(Form);
